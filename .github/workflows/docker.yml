@@ -11,10 +11,11 @@ on:
       - main
       - master
 
+
 jobs:
   build:
-    runs-on: ubuntu-latest
     environment: test
+    runs-on: ubuntu-latest    
     steps:
 #скачиваем    
       - uses: actions/checkout@main      
@@ -27,10 +28,13 @@ jobs:
 
       - name: Build image
         if: success()
-        run: docker build -t ${{ vars.DOCKER_LOGIN }}/testapp ./Backend/
+        run: docker build -t ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }} ./Backend/
 
       - name: Push to docker registry
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push ${{ vars.DOCKER_LOGIN }}/testapp
+          args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
+  
+
+      
