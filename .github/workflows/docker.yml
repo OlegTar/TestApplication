@@ -1,24 +1,18 @@
 name: Deploy to docker hub
 
-# Настройка триггеров запуска
+# Настройка триггеров запуска на каждый пуш в main
 on:
   push:
     branches:
       - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
-
-
 jobs:
   build:
     environment: test
     runs-on: ubuntu-latest    
     steps:
-#скачиваем    
+#скачиваем ветку   
       - uses: actions/checkout@main      
+#логинимся в docker hub
       - name: Login to docker hub
         if: success()
         uses: actions-hub/docker/login@master
@@ -26,21 +20,25 @@ jobs:
           DOCKER_USERNAME: ${{ vars.DOCKER_LOGIN }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
+#билдим docker образ, тег образа - это sha-коммита
       - name: Build image
         if: success()
         run: docker build -t ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }} ./Backend/
 
+#пушим в docker hub
       - name: Push to docker registry
         if: success()
         uses: actions-hub/docker@master
         with:
           args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
 
+#update'им образ контейнера в кластере кубернетеса
   deploy:
     needs: build
     environment: test
     runs-on: ubuntu-latest   
     steps:
+    #Используем готовый экшн для kubectl
        - uses: actions-hub/kubectl@master
          name: Update image in Kubernetes Cluster
          env:
