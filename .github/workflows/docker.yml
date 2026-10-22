@@ -37,6 +37,7 @@ jobs:
           args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
 
   deploy:
+    needs: build
     environment: test
     runs-on: ubuntu-latest   
     steps:
