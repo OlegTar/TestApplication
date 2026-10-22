@@ -14,11 +14,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    environment: test
     steps:
 #скачиваем    
-      - uses: actions/checkout@main
-
+      - uses: actions/checkout@main      
       - name: Login to docker hub
         if: success()
         uses: actions-hub/docker/login@master
