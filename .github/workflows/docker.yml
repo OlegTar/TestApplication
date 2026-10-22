@@ -27,10 +27,10 @@ jobs:
 
       - name: Build image
         if: success()
-        run: docker build -t ${DOCKER_LOGIN}/testapp ./Backend/
+        run: docker build -t ${{ vars.DOCKER_LOGIN }}/testapp ./Backend/
 
       - name: Push to docker registry
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push ${DOCKER_LOGIN}/testapp
+          args: push ${{ vars.DOCKER_LOGIN }}/testapp
