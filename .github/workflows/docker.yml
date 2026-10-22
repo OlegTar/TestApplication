@@ -1,0 +1,37 @@
+name: Deploy to docker hub
+
+# Настройка триггеров запуска
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+#скачиваем    
+      - uses: actions/checkout@main
+
+      - name: Login to docker hub
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build image
+        if: success()
+        run: docker build -t ${DOCKER_LOGIN}/testapp ./Backend/
+
+      - name: Push to docker registry
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push ${DOCKER_LOGIN}/testapp
