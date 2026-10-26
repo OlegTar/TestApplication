@@ -1,9 +1,12 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 const int AllocationSize = 25 * 1024 * 1024;
 var allocations = new List<byte[]>();
 var allocationsLock = new object();
+
+app.MapHealthChecks("/hc");
 
 app.MapGet("/increase", () =>
 {
