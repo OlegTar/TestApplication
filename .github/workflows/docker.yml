@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest   
     env:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        steps:
+    steps:
       - name: Checkout кода
         uses: actions/checkout@v4
 
