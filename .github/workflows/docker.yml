@@ -53,9 +53,7 @@ jobs:
           # Создаем директорию для конфига
           mkdir -p $HOME/.kube
           # Записываем секрет KUBE_CONFIG в файл config
-          # Внимание: если ваш секрет закодирован в base64, замените следующую строку на:
-          # echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
           # Устанавливаем безопасные права доступа
           chmod 600 $HOME/.kube/config
           echo "✅ Доступ к кластеру настроен"
