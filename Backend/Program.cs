@@ -8,6 +8,11 @@ var allocationsLock = new object();
 
 app.MapHealthChecks("/hc");
 
+app.MapGet("/endpoint", () =>
+{
+    return "B";
+});
+
 app.MapGet("/increase", () =>
 {
     try
