@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "testapp.fullname" . }}  
+spec:  
+  selector:
+    matchLabels:
+      app: {{ include "testapp.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:      
+      labels:
+        app: {{ include "testapp.fullname" . }} 
+    spec:      
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+          - containerPort: 8080
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
