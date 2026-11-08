@@ -121,8 +121,8 @@ jobs:
   #         kubectl get svc service -o jsonpath='{.spec.selector.app}'
   #         echo ""
   # .github/workflows/deploy.yml
-  deployment:
-    #needs: build
+  deploy:
+    needs: build
     environment: test
     runs-on: 'ubuntu-latest'
     env:
@@ -149,8 +149,12 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
           echo "✅ Helm установлен"
-      - name: "Текущая директория"
+      - name: "Устанавливаем обновленный чарт приложения"
         run: |
-          pwd
-          ls -l
-      
+          cd helm
+          #читаем последнюю версию приложения и увеличиваем последнее число на 1.
+          newVersion=$(helm get metadata app | grep APP_VERSION | awk -F": " '{ print $2 }' | awk -F. '{ print $1 "." $2 "." ($3 + 1)}')
+          #упаковываем папку чарта в архив, меняя версию приложения, и версию чарта
+          helm package ./testapp --version=$newVersion --app-version="$newVersion"
+          #устанавливаем новую версию приложения, меняя версию чарта также и тег для образа
+          helm upgrade --install app ./testapp-$newVersion.tgz --set image.tag="${{ github.sha }}"
