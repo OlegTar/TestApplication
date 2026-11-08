@@ -33,21 +33,105 @@ jobs:
           args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
 
 #update'им образ контейнера в кластере кубернетеса
-  deploy:
-    needs: build
-    environment: test
-    runs-on: ubuntu-latest   
+  # deploy:
+  #   needs: build
+  #   environment: test
+  #   runs-on: ubuntu-latest   
+  #   env:
+  #     KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+  #   steps:
+  #     - name: Checkout кода
+  #       uses: actions/checkout@v4
+
+  #     - name: Установка kubectl
+  #       uses: azure/setup-kubectl@v3
+  #       with:
+  #         version: 'latest'
+
+  #     - name: Настройка доступа к Kubernetes
+  #       run: |
+  #         # Создаем директорию для конфига
+  #         mkdir -p $HOME/.kube
+  #         # Записываем секрет KUBE_CONFIG в файл config
+  #         echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+  #         # Устанавливаем безопасные права доступа
+  #         chmod 600 $HOME/.kube/config
+  #         echo "✅ Доступ к кластеру настроен"
+
+  #     - name: Определение целевого деплоймента
+  #       id: determine-deployment
+  #       run: |
+  #         # 1. Получаем текущий селектор сервиса
+  #         CURRENT_SELECTOR=$(kubectl get svc service -o jsonpath='{.spec.selector.app}')
+  #         echo "Текущий селектор сервиса: $CURRENT_SELECTOR"
+          
+  #         # 2. Проверяем наличие слова "blue" и задаем переменную окружения
+  #         if [[ "$CURRENT_SELECTOR" == *"blue"* ]]; then
+  #           echo "DEPLOYMENT=green-deployment" >> $GITHUB_ENV
+  #           echo "✅ Будем обновлять green-deployment"
+  #         else
+  #           echo "DEPLOYMENT=blue-deployment" >> $GITHUB_ENV
+  #           echo "✅ Будем обновлять blue-deployment"
+  #         fi
+
+  #     - name: Обновление образа в деплойменте
+  #       run: |
+  #         echo "🔄 Обновляем образ для ${{ env.DEPLOYMENT }}..."
+  #         kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.DEPLOYMENT }}=olegtar/testapp:${{ github.sha }}
+
+  #     - name: Опрос готовности нового пода (1 минута, шаг 5 секунд)
+  #       run: |
+  #         MAX_ATTEMPTS=12 # 12 попыток * 5 секунд = 60 секунд
+  #         ATTEMPT=1
+  #         READY=false
+          
+  #         echo "⏳ Начинаем опрос готовности пода..."
+  #         while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+  #           echo "Попытка $ATTEMPT из $MAX_ATTEMPTS..."
+            
+  #           # rollout status возвращает 0 только когда поды прошли проверку готовности (ready)
+  #           if kubectl rollout status deployment/${{ env.DEPLOYMENT }} --timeout=5s > /dev/null 2>&1; then
+  #             echo "✅ Новый под готов и принимает трафик!"
+  #             READY=true
+  #             break
+  #           fi
+            
+  #           echo "⏳ Под еще не готов, ждем 5 секунд..."
+  #           sleep 5
+  #           ATTEMPT=$((ATTEMPT + 1))
+  #         done
+          
+  #         if [ "$READY" = false ]; then
+  #           echo "❌ Ошибка: под не стал готовым в течение 1 минуты. Откат или ручное вмешательство."
+  #           echo "Последние события по деплойменту:"
+  #           kubectl describe deployment ${{ env.DEPLOYMENT }}
+  #           exit 1
+  #         fi
+
+  #     - name: Переключение трафика на новый деплоймент
+  #       run: |
+  #         echo "🔄 Переключаем селектор сервиса 'service' на app=${{ env.DEPLOYMENT }}"
+          
+  #         # Выполняем запрошенную команду для мгновенного переключения трафика
+  #         kubectl set selector service service app=${{ env.DEPLOYMENT }}
+          
+  #         echo "✅ Трафик успешно переключен на ${{ env.DEPLOYMENT }}!"
+          
+  #         # Опционально: можно вывести текущий селектор для подтверждения в логах
+  #         kubectl get svc service -o jsonpath='{.spec.selector.app}'
+  #         echo ""
+  # .github/workflows/deploy.yml
+  deployment:
+    runs-on: 'ubuntu-latest'
     env:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
     steps:
       - name: Checkout кода
         uses: actions/checkout@v4
-
       - name: Установка kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
-
       - name: Настройка доступа к Kubernetes
         run: |
           # Создаем директорию для конфига
@@ -57,67 +141,13 @@ jobs:
           # Устанавливаем безопасные права доступа
           chmod 600 $HOME/.kube/config
           echo "✅ Доступ к кластеру настроен"
-
-      - name: Определение целевого деплоймента
-        id: determine-deployment
+      - name: "Установка helm"
         run: |
-          # 1. Получаем текущий селектор сервиса
-          CURRENT_SELECTOR=$(kubectl get svc service -o jsonpath='{.spec.selector.app}')
-          echo "Текущий селектор сервиса: $CURRENT_SELECTOR"
-          
-          # 2. Проверяем наличие слова "blue" и задаем переменную окружения
-          if [[ "$CURRENT_SELECTOR" == *"blue"* ]]; then
-            echo "DEPLOYMENT=green-deployment" >> $GITHUB_ENV
-            echo "✅ Будем обновлять green-deployment"
-          else
-            echo "DEPLOYMENT=blue-deployment" >> $GITHUB_ENV
-            echo "✅ Будем обновлять blue-deployment"
-          fi
-
-      - name: Обновление образа в деплойменте
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          echo "✅ Helm установлен"
+      - name: "Текущая директория"
         run: |
-          echo "🔄 Обновляем образ для ${{ env.DEPLOYMENT }}..."
-          kubectl set image deployment/${{ env.DEPLOYMENT }} ${{ env.DEPLOYMENT }}=olegtar/testapp:${{ github.sha }}
-
-      - name: Опрос готовности нового пода (1 минута, шаг 5 секунд)
-        run: |
-          MAX_ATTEMPTS=12 # 12 попыток * 5 секунд = 60 секунд
-          ATTEMPT=1
-          READY=false
-          
-          echo "⏳ Начинаем опрос готовности пода..."
-          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Попытка $ATTEMPT из $MAX_ATTEMPTS..."
-            
-            # rollout status возвращает 0 только когда поды прошли проверку готовности (ready)
-            if kubectl rollout status deployment/${{ env.DEPLOYMENT }} --timeout=5s > /dev/null 2>&1; then
-              echo "✅ Новый под готов и принимает трафик!"
-              READY=true
-              break
-            fi
-            
-            echo "⏳ Под еще не готов, ждем 5 секунд..."
-            sleep 5
-            ATTEMPT=$((ATTEMPT + 1))
-          done
-          
-          if [ "$READY" = false ]; then
-            echo "❌ Ошибка: под не стал готовым в течение 1 минуты. Откат или ручное вмешательство."
-            echo "Последние события по деплойменту:"
-            kubectl describe deployment ${{ env.DEPLOYMENT }}
-            exit 1
-          fi
-
-      - name: Переключение трафика на новый деплоймент
-        run: |
-          echo "🔄 Переключаем селектор сервиса 'service' на app=${{ env.DEPLOYMENT }}"
-          
-          # Выполняем запрошенную команду для мгновенного переключения трафика
-          kubectl set selector service service app=${{ env.DEPLOYMENT }}
-          
-          echo "✅ Трафик успешно переключен на ${{ env.DEPLOYMENT }}!"
-          
-          # Опционально: можно вывести текущий селектор для подтверждения в логах
-          kubectl get svc service -o jsonpath='{.spec.selector.app}'
-          echo ""
+          pwd
       
