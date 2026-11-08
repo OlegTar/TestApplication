@@ -1,4 +1,4 @@
-name: Deploy to docker hub
+name: Deploy to docker hub, then release to k8s
 
 # Настройка триггеров запуска на каждый пуш в main
 on:
@@ -122,6 +122,8 @@ jobs:
   #         echo ""
   # .github/workflows/deploy.yml
   deployment:
+    #needs: build
+    environment: test
     runs-on: 'ubuntu-latest'
     env:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
@@ -150,4 +152,5 @@ jobs:
       - name: "Текущая директория"
         run: |
           pwd
+          ls -l
       
