@@ -10,6 +10,8 @@ jobs:
     environment: test
     runs-on: ubuntu-latest    
     if: ${{ github.actor != 'github-actions[bot]' && github.event_name != 'push' || github.event.pusher.name != 'github-actions[bot]' }}
+    env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
 #скачиваем ветку   
       - uses: actions/checkout@main      
