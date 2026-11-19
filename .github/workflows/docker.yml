@@ -35,7 +35,7 @@ jobs:
           
       - name: Update values.yaml
         run: |
-            yq e ".image.tag = ${{ github.sha }}" -i helm/testapp/values.yaml
+            yq ".image.tag = ${{ github.sha }}" -i helm/testapp/values.yaml
             git add helm/testapp/values.yaml
             git commit -m "update values.yaml"
             git push
