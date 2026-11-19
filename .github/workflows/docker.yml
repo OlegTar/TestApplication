@@ -34,8 +34,9 @@ jobs:
           args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
           
       - name: Update values.yaml
+        uses: actions/checkout@v2
         run: |
-            yq e ".image.tag = $github.sha" -i helm/testapp/values.yaml
+            yq e '.image.tag = $github.sha' -i helm/testapp/values.yaml
             git add helm/testapp/values.yaml
             git commit -m "update values.yaml"
             git push
