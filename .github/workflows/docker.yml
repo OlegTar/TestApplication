@@ -37,7 +37,7 @@ jobs:
           
       - name: Update values.yaml
         run: |            
-            yq
+            yq --help
             git config --global user.email "github@actions"
             git config --global user.name "github@actions"
             git add helm/testapp/values.yaml
