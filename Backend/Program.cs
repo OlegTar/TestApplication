@@ -6,11 +6,11 @@ const int AllocationSize = 25 * 1024 * 1024;
 var allocations = new List<byte[]>();
 var allocationsLock = new object();
 
-app.MapHealthChecks("/hc");
+app.MapGet("/hc", () => Results.Ok("Healthy"));
 
 app.MapGet("/endpoint", () =>
 {
-    return "B";
+    return "С";
 });
 
 app.MapGet("/increase", () =>

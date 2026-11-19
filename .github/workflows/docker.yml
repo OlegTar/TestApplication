@@ -121,36 +121,36 @@ jobs:
   #         kubectl get svc service -o jsonpath='{.spec.selector.app}'
   #         echo ""
   # .github/workflows/deploy.yml
-  deployment:
+  #deployment:
     #needs: build
-    environment: test
-    runs-on: 'ubuntu-latest'
-    env:
-      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-    steps:
-      - name: Checkout кода
-        uses: actions/checkout@v4
-      - name: Установка kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-      - name: Настройка доступа к Kubernetes
-        run: |
-          # Создаем директорию для конфига
-          mkdir -p $HOME/.kube
-          # Записываем секрет KUBE_CONFIG в файл config
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-          # Устанавливаем безопасные права доступа
-          chmod 600 $HOME/.kube/config
-          echo "✅ Доступ к кластеру настроен"
-      - name: "Установка helm"
-        run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
-          chmod 700 get_helm.sh
-          ./get_helm.sh
-          echo "✅ Helm установлен"
-      - name: "Текущая директория"
-        run: |
-          pwd
-          ls -l
+    #environment: test
+    #runs-on: 'ubuntu-latest'
+    #env:
+     # KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    #steps:
+     # - name: Checkout кода
+      #  uses: actions/checkout@v4
+      #- name: Установка kubectl
+      #  uses: azure/setup-kubectl@v3
+       # with:
+        #  version: 'latest'
+      #- name: Настройка доступа к Kubernetes
+      #  run: |
+      #    # Создаем директорию для конфига
+      #    mkdir -p $HOME/.kube
+      #    # Записываем секрет KUBE_CONFIG в файл config
+      #    echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+      #    # Устанавливаем безопасные права доступа
+      #    chmod 600 $HOME/.kube/config
+      #    echo "✅ Доступ к кластеру настроен"
+      #- name: "Установка helm"
+      #  run: |
+      #    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
+      #    chmod 700 get_helm.sh
+      #    ./get_helm.sh
+      #    echo "✅ Helm установлен"
+      #- name: "Текущая директория"
+        #run: |
+         # pwd
+         # ls -l
       
