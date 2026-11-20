@@ -37,8 +37,7 @@ jobs:
           
       - name: Update values.yaml
         run: |
-            ls -la helm/testapp/
-            yq -i '.image.tag = "${{ github.sha }}"' ./helm/testapp/values.yml
+            yq -i '.image.tag = "${{ github.sha }}"' helm/testapp/values.yaml
             git config --global user.email "github@actions"
             git config --global user.name "github@actions"
             git add helm/testapp/values.yaml
