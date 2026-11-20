@@ -36,7 +36,8 @@ jobs:
           args: push ${{ vars.DOCKER_LOGIN }}/testapp:${{ github.sha }}
           
       - name: Update values.yaml
-        run: |            
+        run: |
+            ls -la
             yq -i '.image.tag = "${{ github.sha }}"' ./helm/testapp/values.yml
             git config --global user.email "github@actions"
             git config --global user.name "github@actions"
