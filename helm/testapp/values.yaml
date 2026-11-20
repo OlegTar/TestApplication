@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: olegtar/testapp
-  tag: "latest"
+  tag: "6592928c9b27f681cb3441d531fccdd5b1480ad9"
 ingress:
   host: stateofnet.ru
 readinessProbe:
